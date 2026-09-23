@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+redis
+python-jose[cryptography]
+#passlib[bcrypt]
+bcrypt
+pydantic-settings
+python-multipart
+pytest

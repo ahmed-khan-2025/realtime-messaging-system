@@ -1,0 +1,4023 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Real-Time Messaging</title>
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+        ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           APP CONTAINER
+        ===================================================== */
+
+        .app {
+            width: 100%;
+            max-width: 1400px;
+
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 46px;
+            height: 46px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #2563eb;
+            color: white;
+
+            border-radius: 12px;
+
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .brand h1 {
+            margin: 0;
+
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .brand p {
+            margin: 3px 0 0;
+
+            font-size: 13px;
+            color: #64748b;
+        }
+
+
+        /* =====================================================
+           SERVER STATUS
+        ===================================================== */
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            border-radius: 20px;
+
+            background: #e2e8f0;
+            color: #64748b;
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+
+            border-radius: 50%;
+
+            background: #94a3b8;
+        }
+
+        .server-status.connected {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .server-status.connected .status-dot {
+            background: #22c55e;
+        }
+
+        .server-status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .server-status.error .status-dot {
+            background: #ef4444;
+        }
+
+
+        /* =====================================================
+           USERS
+        ===================================================== */
+
+        .users-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+
+            gap: 16px;
+
+            margin-bottom: 18px;
+        }
+
+        .user-card {
+            background: white;
+
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+
+            padding: 18px;
+
+            box-shadow:
+                0 2px 6px rgba(15, 23, 42, 0.04);
+        }
+
+        .user-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 16px;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #dbeafe;
+            color: #1d4ed8;
+
+            font-weight: 700;
+            font-size: 16px;
+
+            text-transform: uppercase;
+        }
+
+        .avatar.avatar-two {
+            background: #ede9fe;
+            color: #6d28d9;
+        }
+
+        .user-name {
+            margin: 0;
+
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .user-label {
+            margin-top: 2px;
+
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .online-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            color: #64748b;
+        }
+
+        .online-status .dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: #94a3b8;
+        }
+
+        .online-status.online {
+            color: #15803d;
+        }
+
+        .online-status.online .dot {
+            background: #22c55e;
+        }
+
+        .user-details {
+            padding: 10px 12px;
+
+            margin-bottom: 12px;
+
+            background: #f8fafc;
+
+            border-radius: 8px;
+
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .user-details strong {
+            color: #334155;
+        }
+
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-label {
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            color: #475569;
+        }
+
+        input,
+        select {
+            width: 100%;
+
+            padding: 10px 12px;
+
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+
+            outline: none;
+
+            background: white;
+
+            color: #1e293b;
+
+            transition:
+                border-color 0.15s,
+                box-shadow 0.15s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px rgba(
+                    37,
+                    99,
+                    235,
+                    0.10
+                );
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .button-row {
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 8px;
+
+            margin-top: 10px;
+        }
+
+        .button {
+            width: 100%;
+
+            padding: 10px 12px;
+
+            border: none;
+            border-radius: 8px;
+
+            font-weight: 600;
+            font-size: 13px;
+
+            transition:
+                transform 0.1s,
+                opacity 0.15s;
+        }
+
+        .button:hover {
+            opacity: 0.92;
+        }
+
+        .button:active {
+            transform: translateY(1px);
+        }
+
+        .button-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .button-success {
+            background: #16a34a;
+            color: white;
+        }
+
+        .button-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .button-secondary {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+
+        /* =====================================================
+           MESSAGES / FEEDBACK
+        ===================================================== */
+
+        .feedback {
+            min-height: 18px;
+
+            margin-top: 8px;
+
+            font-size: 12px;
+        }
+
+        .feedback.success {
+            color: #15803d;
+        }
+
+        .feedback.error {
+            color: #dc2626;
+        }
+
+        .feedback.info {
+            color: #2563eb;
+        }
+
+
+        /* =====================================================
+           MAIN CHAT LAYOUT
+        ===================================================== */
+
+        .main-layout {
+            display: grid;
+
+            grid-template-columns:
+                280px minmax(0, 1fr);
+
+            min-height: 620px;
+
+            background: white;
+
+            border:
+                1px solid #e2e8f0;
+
+            border-radius: 14px;
+
+            overflow: hidden;
+
+            box-shadow:
+                0 4px 12px rgba(
+                    15,
+                    23,
+                    42,
+                    0.05
+                );
+        }
+
+
+        /* =====================================================
+           SIDEBAR
+        ===================================================== */
+
+        .sidebar {
+            background: #f8fafc;
+
+            border-right:
+                1px solid #e2e8f0;
+
+            padding: 18px;
+        }
+
+        .sidebar-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 14px;
+        }
+
+        .sidebar-title h2 {
+            margin: 0;
+
+            font-size: 15px;
+        }
+
+        .room-count {
+            padding: 3px 7px;
+
+            border-radius: 10px;
+
+            background: #e2e8f0;
+
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .create-room {
+            padding-bottom: 16px;
+
+            border-bottom:
+                1px solid #e2e8f0;
+
+            margin-bottom: 14px;
+        }
+
+        .create-room input {
+            margin-bottom: 8px;
+        }
+
+        .rooms-list {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 5px;
+        }
+
+        .room-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            width: 100%;
+
+            padding: 10px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: transparent;
+
+            text-align: left;
+
+            color: #475569;
+        }
+
+        .room-item:hover {
+            background: #e2e8f0;
+        }
+
+        .room-item.active {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .room-icon {
+            width: 30px;
+            height: 30px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            flex-shrink: 0;
+
+            border-radius: 7px;
+
+            background: #e2e8f0;
+
+            font-size: 13px;
+        }
+
+        .room-item.active .room-icon {
+            background: #bfdbfe;
+        }
+
+        .room-item-text {
+            overflow: hidden;
+        }
+
+        .room-name {
+            display: block;
+
+            overflow: hidden;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .room-id {
+            display: block;
+
+            margin-top: 2px;
+
+            font-size: 10px;
+
+            color: #94a3b8;
+        }
+
+        .no-rooms {
+            padding: 20px 8px;
+
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 12px;
+        }
+
+
+        /* =====================================================
+           CHAT AREA
+        ===================================================== */
+
+        .chat-area {
+            display: flex;
+
+            flex-direction: column;
+
+            min-width: 0;
+        }
+
+        .chat-header {
+            display: flex;
+
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 16px 20px;
+
+            border-bottom:
+                1px solid #e2e8f0;
+
+            background: white;
+        }
+
+        .chat-room-title {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+        .chat-room-icon {
+            width: 38px;
+            height: 38px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background: #eff6ff;
+            color: #2563eb;
+
+            font-size: 17px;
+        }
+
+        .chat-room-title h2 {
+            margin: 0;
+
+            font-size: 16px;
+        }
+
+        .chat-room-title p {
+            margin: 3px 0 0;
+
+            color: #94a3b8;
+
+            font-size: 11px;
+        }
+
+        .connection-info {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+
+        /* =====================================================
+           CHAT MESSAGES
+        ===================================================== */
+
+        .chat-messages {
+            flex: 1;
+
+            min-height: 0;
+
+            padding: 20px;
+
+            overflow-y: auto;
+
+            background: #f8fafc;
+        }
+
+        .empty-chat {
+            height: 100%;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            color: #94a3b8;
+        }
+
+        .empty-chat-icon {
+            font-size: 38px;
+
+            margin-bottom: 10px;
+        }
+
+        .empty-chat h3 {
+            margin: 0 0 5px;
+
+            color: #475569;
+
+            font-size: 15px;
+        }
+
+        .empty-chat p {
+            margin: 0;
+
+            font-size: 12px;
+        }
+
+        .message {
+            display: flex;
+
+            gap: 10px;
+
+            margin-bottom: 16px;
+
+            max-width: 75%;
+        }
+
+        .message.mine {
+            margin-left: auto;
+
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+
+            flex-shrink: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            background: #dbeafe;
+            color: #1d4ed8;
+
+            font-size: 11px;
+            font-weight: 700;
+
+            text-transform: uppercase;
+        }
+
+        .message-body {
+            min-width: 0;
+        }
+
+        .message-meta {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 4px;
+        }
+
+        .message.mine .message-meta {
+            justify-content: flex-end;
+        }
+
+        .message-sender {
+            font-size: 11px;
+
+            font-weight: 700;
+
+            color: #475569;
+        }
+
+        .message-time {
+            font-size: 10px;
+
+            color: #94a3b8;
+        }
+
+        .message-bubble {
+            padding: 10px 13px;
+
+            border-radius: 10px;
+
+            background: white;
+
+            border:
+                1px solid #e2e8f0;
+
+            color: #334155;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+
+            word-break: break-word;
+        }
+
+        .message.mine .message-bubble {
+            background: #2563eb;
+            color: white;
+
+            border-color: #2563eb;
+        }
+
+        .message.mine .message-sender {
+            color: #2563eb;
+        }
+
+
+        /* =====================================================
+           COMPOSER
+        ===================================================== */
+
+        .composer {
+            padding: 14px 18px;
+
+            border-top:
+                1px solid #e2e8f0;
+
+            background: white;
+        }
+
+        .composer-top {
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 8px;
+        }
+
+        .send-label {
+            font-size: 11px;
+
+            color: #64748b;
+
+            white-space: nowrap;
+        }
+
+        #sendAs {
+            width: auto;
+            min-width: 160px;
+
+            padding: 6px 9px;
+
+            font-size: 11px;
+        }
+
+        .composer-row {
+            display: flex;
+
+            gap: 8px;
+        }
+
+        .composer-row input {
+            flex: 1;
+
+            margin: 0;
+        }
+
+        .send-button {
+            width: 80px;
+
+            flex-shrink: 0;
+
+            border: none;
+            border-radius: 8px;
+
+            background: #2563eb;
+            color: white;
+
+            font-weight: 600;
+        }
+
+        .send-button:hover {
+            background: #1d4ed8;
+        }
+
+
+        /* =====================================================
+           UTILITIES
+        ===================================================== */
+
+        .hidden {
+            display: none !important;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .main-layout {
+                grid-template-columns: 220px minmax(0, 1fr);
+            }
+
+            .message {
+                max-width: 85%;
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .app {
+                padding: 12px;
+            }
+
+            .header {
+                align-items: flex-start;
+
+                flex-direction: column;
+
+                gap: 12px;
+            }
+
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-layout {
+                grid-template-columns: 1fr;
+
+                min-height: 700px;
+            }
+
+            .sidebar {
+                border-right: none;
+
+                border-bottom:
+                    1px solid #e2e8f0;
+            }
+
+            .rooms-list {
+                display: grid;
+
+                grid-template-columns:
+                    repeat(
+                        auto-fit,
+                        minmax(130px, 1fr)
+                    );
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+    <!-- =====================================================
+         HEADER
+    ===================================================== -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                💬
+            </div>
+
+            <div>
+
+                <h1>
+                    Real-Time Messaging
+                </h1>
+
+                <p>
+                    FastAPI · WebSockets · Redis · PostgreSQL
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div
+            id="serverStatus"
+            class="server-status"
+        >
+
+            <span class="status-dot"></span>
+
+            <span id="serverStatusText">
+                Checking server...
+            </span>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         USERS
+    ===================================================== -->
+
+    <section class="users-grid">
+
+
+        <!-- ================= USER SESSION 1 ================= -->
+
+        <div class="user-card">
+
+            <div class="user-card-header">
+
+                <div class="user-profile">
+
+                    <div
+                        id="avatar1"
+                        class="avatar"
+                    >
+                        ?
+                    </div>
+
+                    <div>
+
+                        <h3
+                            id="displayName1"
+                            class="user-name"
+                        >
+                            User 1
+                        </h3>
+
+                        <div class="user-label">
+                            Session 1
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="onlineStatus1"
+                    class="online-status"
+                >
+
+                    <span class="dot"></span>
+
+                    <span>
+                        Offline
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOGIN -->
+
+            <div id="loginView1">
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="username1"
+                    >
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username1"
+                        placeholder="Enter username"
+                        autocomplete="username"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="password1"
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password1"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                    >
+
+                </div>
+
+
+                <div class="button-row">
+
+                    <button
+                        class="button button-primary"
+                        onclick="loginUser(1)"
+                    >
+                        Login
+                    </button>
+
+                    <button
+                        class="button button-success"
+                        onclick="registerUser(1)"
+                    >
+                        Register
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="loginMessage1"
+                    class="feedback"
+                ></div>
+
+                <div
+                    id="registrationMessage1"
+                    class="feedback"
+                ></div>
+
+            </div>
+
+
+            <!-- LOGGED IN -->
+
+            <div
+                id="loggedInView1"
+                class="hidden"
+            >
+
+                <div class="user-details">
+
+                    User ID:
+                    <strong id="userId1">
+                        -
+                    </strong>
+
+                </div>
+
+                <button
+                    class="button button-danger"
+                    onclick="logoutUser(1)"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ================= USER SESSION 2 ================= -->
+
+        <div class="user-card">
+
+            <div class="user-card-header">
+
+                <div class="user-profile">
+
+                    <div
+                        id="avatar2"
+                        class="avatar avatar-two"
+                    >
+                        ?
+                    </div>
+
+                    <div>
+
+                        <h3
+                            id="displayName2"
+                            class="user-name"
+                        >
+                            User 2
+                        </h3>
+
+                        <div class="user-label">
+                            Session 2
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="onlineStatus2"
+                    class="online-status"
+                >
+
+                    <span class="dot"></span>
+
+                    <span>
+                        Offline
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <!-- LOGIN -->
+
+            <div id="loginView2">
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="username2"
+                    >
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username2"
+                        placeholder="Enter username"
+                        autocomplete="username"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="password2"
+                    >
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password2"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                    >
+
+                </div>
+
+
+                <div class="button-row">
+
+                    <button
+                        class="button button-primary"
+                        onclick="loginUser(2)"
+                    >
+                        Login
+                    </button>
+
+                    <button
+                        class="button button-success"
+                        onclick="registerUser(2)"
+                    >
+                        Register
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="loginMessage2"
+                    class="feedback"
+                ></div>
+
+                <div
+                    id="registrationMessage2"
+                    class="feedback"
+                ></div>
+
+            </div>
+
+
+            <!-- LOGGED IN -->
+
+            <div
+                id="loggedInView2"
+                class="hidden"
+            >
+
+                <div class="user-details">
+
+                    User ID:
+                    <strong id="userId2">
+                        -
+                    </strong>
+
+                </div>
+
+                <button
+                    class="button button-danger"
+                    onclick="logoutUser(2)"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CHAT APPLICATION
+    ===================================================== -->
+
+    <section class="main-layout">
+
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================= -->
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+
+                <h2>
+                    Chat Rooms
+                </h2>
+
+                <span
+                    id="roomCount"
+                    class="room-count"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <!-- CREATE ROOM -->
+
+            <div class="create-room">
+
+                <label
+                    class="form-label"
+                    for="newRoomName"
+                >
+                    Create a new room
+                </label>
+
+                <input
+                    type="text"
+                    id="newRoomName"
+                    placeholder="Room name"
+                >
+
+                <button
+                    class="button button-primary"
+                    onclick="createRoom()"
+                >
+                    + Create Room
+                </button>
+
+                <div
+                    id="roomMessage"
+                    class="feedback"
+                ></div>
+
+            </div>
+
+
+            <!-- ROOMS -->
+
+            <div
+                id="roomsList"
+                class="rooms-list"
+            >
+
+                <div class="no-rooms">
+                    Login to see rooms.
+                </div>
+
+            </div>
+
+        </aside>
+
+
+
+        <!-- =================================================
+             CHAT AREA
+        ================================================= -->
+
+        <main class="chat-area">
+
+
+            <!-- CHAT HEADER -->
+
+            <div class="chat-header">
+
+                <div class="chat-room-title">
+
+                    <div class="chat-room-icon">
+                        #
+                    </div>
+
+                    <div>
+
+                        <h2
+                            id="currentRoomTitle"
+                        >
+                            Select a room
+                        </h2>
+
+                        <p
+                            id="currentRoomSubtitle"
+                        >
+                            No room selected
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="connectionInfo"
+                    class="connection-info"
+                >
+                    Not connected
+                </div>
+
+            </div>
+
+
+            <!-- MESSAGES -->
+
+            <div
+                id="messages"
+                class="chat-messages"
+            >
+
+                <div class="empty-chat">
+
+                    <div>
+
+                        <div class="empty-chat-icon">
+                            💬
+                        </div>
+
+                        <h3>
+                            Welcome to Real-Time Messaging
+                        </h3>
+
+                        <p>
+                            Login, select a room and start chatting.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- COMPOSER -->
+
+            <div class="composer">
+
+                <div class="composer-top">
+
+                    <span class="send-label">
+                        Send as:
+                    </span>
+
+                    <select id="sendAs">
+
+                        <option value="1">
+                            User 1
+                        </option>
+
+                        <option value="2">
+                            User 2
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="composer-row">
+
+                    <input
+                        type="text"
+                        id="messageInput"
+                        placeholder="Type a message..."
+                        maxlength="2000"
+                        onkeydown="handleMessageKey(event)"
+                    >
+
+                    <button
+                        class="send-button"
+                        onclick="sendMessage()"
+                    >
+                        Send
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="messageStatus"
+                    class="feedback"
+                ></div>
+
+            </div>
+
+        </main>
+
+    </section>
+
+</div>
+
+
+
+<script>
+
+    // =========================================================
+    // CONFIGURATION
+    // =========================================================
+
+    const API_BASE_URL =
+        "http://127.0.0.1:8000";
+
+
+    const WS_BASE_URL =
+        "ws://127.0.0.1:8000";
+
+
+    // =========================================================
+    // APPLICATION STATE
+    // =========================================================
+
+    let currentRoomId = null;
+
+    let currentRoomName = null;
+
+    let rooms = [];
+
+
+    const userState = {
+
+        1: {
+            token: null,
+            userId: null,
+            username: null,
+            websocket: null
+        },
+
+        2: {
+            token: null,
+            userId: null,
+            username: null,
+            websocket: null
+        }
+
+    };
+
+
+    // Prevent duplicate messages.
+    const displayedMessages =
+        new Set();
+
+
+    // =========================================================
+    // API REQUEST
+    // =========================================================
+
+    async function apiRequest(
+        endpoint,
+        options = {},
+        token = null
+    ) {
+
+        const headers = {
+            ...(options.headers || {})
+        };
+
+
+        if (
+            options.body &&
+            !headers["Content-Type"]
+        ) {
+
+            headers["Content-Type"] =
+                "application/json";
+
+        }
+
+
+        if (token) {
+
+            headers["Authorization"] =
+                `Bearer ${token}`;
+
+        }
+
+
+        const response =
+            await fetch(
+                `${API_BASE_URL}${endpoint}`,
+                {
+                    ...options,
+                    headers: headers
+                }
+            );
+
+
+        let data = null;
+
+
+        try {
+
+            data =
+                await response.json();
+
+        } catch {
+
+            data = null;
+
+        }
+
+
+        if (!response.ok) {
+
+            let message =
+                "Request failed.";
+
+
+            if (data) {
+
+                if (data.detail) {
+
+                    message =
+                        data.detail;
+
+                } else if (data.message) {
+
+                    message =
+                        data.message;
+
+                } else if (data.error) {
+
+                    message =
+                        data.error;
+
+                }
+
+            }
+
+
+            throw new Error(message);
+
+        }
+
+
+        return data;
+    }
+
+
+    // =========================================================
+    // SERVER STATUS
+    // =========================================================
+
+    async function checkServerConnection() {
+
+        const status =
+            document.getElementById(
+                "serverStatus"
+            );
+
+        const textElement =
+            document.getElementById(
+                "serverStatusText"
+            );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${API_BASE_URL}/docs`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Server unavailable"
+                );
+
+            }
+
+
+            status.className =
+                "server-status connected";
+
+
+            textElement.textContent =
+                "Server connected";
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            status.className =
+                "server-status error";
+
+
+            textElement.textContent =
+                "Server unavailable";
+        }
+    }
+
+
+    // =========================================================
+    // REGISTER
+    // =========================================================
+
+    async function registerUser(
+        userNumber
+    ) {
+
+        const usernameInput =
+            document.getElementById(
+                `username${userNumber}`
+            );
+
+        const passwordInput =
+            document.getElementById(
+                `password${userNumber}`
+            );
+
+        const registrationMessage =
+            document.getElementById(
+                `registrationMessage${userNumber}`
+            );
+
+        const loginMessage =
+            document.getElementById(
+                `loginMessage${userNumber}`
+            );
+
+
+        const username =
+            usernameInput.value.trim();
+
+        const password =
+            passwordInput.value;
+
+
+        registrationMessage.textContent =
+            "";
+
+        registrationMessage.className =
+            "feedback";
+
+        loginMessage.textContent =
+            "";
+
+
+        // ---------------------------------------------
+        // Validation
+        // ---------------------------------------------
+
+        if (!username) {
+
+            registrationMessage.textContent =
+                "Username is required.";
+
+            registrationMessage.className =
+                "feedback error";
+
+            return;
+        }
+
+
+        if (!password) {
+
+            registrationMessage.textContent =
+                "Password is required.";
+
+            registrationMessage.className =
+                "feedback error";
+
+            return;
+        }
+
+
+        if (password.length < 6) {
+
+            registrationMessage.textContent =
+                "Password must be at least 6 characters.";
+
+            registrationMessage.className =
+                "feedback error";
+
+            return;
+        }
+
+
+        try {
+
+            // -----------------------------------------
+            // Register
+            // -----------------------------------------
+
+            await apiRequest(
+                "/auth/register",
+                {
+                    method: "POST",
+
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                }
+            );
+
+
+            // -----------------------------------------
+            // IMPORTANT:
+            // Do NOT automatically login.
+            // -----------------------------------------
+
+            const registeredUsername =
+                username;
+
+
+            passwordInput.value =
+                "";
+
+
+            registrationMessage.textContent =
+                "Registration successful. Please login.";
+
+            registrationMessage.className =
+                "feedback success";
+
+
+            // -----------------------------------------
+            // Go back to login
+            // -----------------------------------------
+
+            setTimeout(() => {
+
+                showLoginView(
+                    userNumber
+                );
+
+
+                usernameInput.value =
+                    registeredUsername;
+
+
+                passwordInput.focus();
+
+
+            }, 1000);
+
+
+        } catch (error) {
+
+            console.error(
+                "Registration error:",
+                error
+            );
+
+
+            registrationMessage.textContent =
+                error.message ||
+                "Registration failed.";
+
+            registrationMessage.className =
+                "feedback error";
+        }
+    }
+
+
+    // =========================================================
+    // LOGIN
+    // =========================================================
+
+    async function loginUser(
+        userNumber
+    ) {
+
+        const usernameInput =
+            document.getElementById(
+                `username${userNumber}`
+            );
+
+        const passwordInput =
+            document.getElementById(
+                `password${userNumber}`
+            );
+
+        const loginMessage =
+            document.getElementById(
+                `loginMessage${userNumber}`
+            );
+
+
+        const username =
+            usernameInput.value.trim();
+
+        const password =
+            passwordInput.value;
+
+
+        loginMessage.textContent =
+            "";
+
+        loginMessage.className =
+            "feedback";
+
+
+        if (!username) {
+
+            loginMessage.textContent =
+                "Username is required.";
+
+            loginMessage.className =
+                "feedback error";
+
+            return;
+        }
+
+
+        if (!password) {
+
+            loginMessage.textContent =
+                "Password is required.";
+
+            loginMessage.className =
+                "feedback error";
+
+            return;
+        }
+
+
+        try {
+
+            // -----------------------------------------
+            // Login
+            // -----------------------------------------
+
+            const data =
+                await apiRequest(
+                    "/auth/login",
+                    {
+                        method: "POST",
+
+                        body: JSON.stringify({
+                            username: username,
+                            password: password
+                        })
+                    }
+                );
+
+
+            const token =
+                data.access_token;
+
+
+            // -----------------------------------------
+            // Save token
+            // -----------------------------------------
+
+            userState[userNumber].token =
+                token;
+
+
+            localStorage.setItem(
+                `token${userNumber}`,
+                token
+            );
+
+
+            // -----------------------------------------
+            // Get current user
+            // -----------------------------------------
+
+            const user =
+                await apiRequest(
+                    "/users/me",
+                    {},
+                    token
+                );
+
+
+            userState[userNumber].userId =
+                user.id;
+
+
+            userState[userNumber].username =
+                user.username;
+
+
+            localStorage.setItem(
+                `userId${userNumber}`,
+                user.id
+            );
+
+
+            localStorage.setItem(
+                `username${userNumber}`,
+                user.username
+            );
+
+
+            // -----------------------------------------
+            // Clear password
+            // -----------------------------------------
+
+            passwordInput.value =
+                "";
+
+
+            loginMessage.textContent =
+                "Login successful.";
+
+            loginMessage.className =
+                "feedback success";
+
+
+            // -----------------------------------------
+            // Update UI
+            // -----------------------------------------
+
+            showLoggedInView(
+                userNumber
+            );
+
+
+            updateUserDisplay(
+                userNumber
+            );
+
+
+            updateSendAsOptions();
+
+
+            // -----------------------------------------
+            // Load rooms
+            // -----------------------------------------
+
+            await refreshRooms();
+
+
+        } catch (error) {
+
+            console.error(
+                "Login error:",
+                error
+            );
+
+
+            loginMessage.textContent =
+                error.message ||
+                "Login failed.";
+
+            loginMessage.className =
+                "feedback error";
+        }
+    }
+
+
+    // =========================================================
+    // SHOW LOGIN VIEW
+    // =========================================================
+
+    function showLoginView(
+        userNumber
+    ) {
+
+        document.getElementById(
+            `loginView${userNumber}`
+        ).classList.remove(
+            "hidden"
+        );
+
+
+        document.getElementById(
+            `loggedInView${userNumber}`
+        ).classList.add(
+            "hidden"
+        );
+
+
+        updateOnlineStatus(
+            userNumber,
+            false
+        );
+    }
+
+
+    // =========================================================
+    // SHOW LOGGED-IN VIEW
+    // =========================================================
+
+    function showLoggedInView(
+        userNumber
+    ) {
+
+        document.getElementById(
+            `loginView${userNumber}`
+        ).classList.add(
+            "hidden"
+        );
+
+
+        document.getElementById(
+            `loggedInView${userNumber}`
+        ).classList.remove(
+            "hidden"
+        );
+
+
+        document.getElementById(
+            `userId${userNumber}`
+        ).textContent =
+            userState[userNumber].userId;
+
+
+        updateOnlineStatus(
+            userNumber,
+            true
+        );
+    }
+
+
+    // =========================================================
+    // UPDATE USER DISPLAY
+    // =========================================================
+
+    function updateUserDisplay(
+        userNumber
+    ) {
+
+        const username =
+            userState[userNumber].username;
+
+
+        if (!username) {
+            return;
+        }
+
+
+        const displayName =
+            document.getElementById(
+                `displayName${userNumber}`
+            );
+
+
+        const avatar =
+            document.getElementById(
+                `avatar${userNumber}`
+            );
+
+
+        displayName.textContent =
+            username;
+
+
+        avatar.textContent =
+            getInitials(username);
+    }
+
+
+    // =========================================================
+    // INITIALS
+    // =========================================================
+
+    function getInitials(
+        username
+    ) {
+
+        if (!username) {
+            return "?";
+        }
+
+
+        const parts =
+            username
+                .trim()
+                .split(/\s+/);
+
+
+        if (parts.length === 1) {
+
+            return parts[0]
+                .substring(0, 2)
+                .toUpperCase();
+
+        }
+
+
+        return (
+            parts[0][0] +
+            parts[parts.length - 1][0]
+        ).toUpperCase();
+    }
+
+
+    // =========================================================
+    // ONLINE STATUS
+    // =========================================================
+
+    function updateOnlineStatus(
+        userNumber,
+        online
+    ) {
+
+        const element =
+            document.getElementById(
+                `onlineStatus${userNumber}`
+            );
+
+
+        if (online) {
+
+            element.className =
+                "online-status online";
+
+
+            element.innerHTML =
+                `
+                <span class="dot"></span>
+                <span>Online</span>
+                `;
+
+        } else {
+
+            element.className =
+                "online-status";
+
+
+            element.innerHTML =
+                `
+                <span class="dot"></span>
+                <span>Offline</span>
+                `;
+        }
+    }
+
+
+    // =========================================================
+    // UPDATE SEND-AS OPTIONS
+    // =========================================================
+
+    function updateSendAsOptions() {
+
+        const select =
+            document.getElementById(
+                "sendAs"
+            );
+
+
+        const currentValue =
+            select.value;
+
+
+        select.innerHTML =
+            "";
+
+
+        let addedOption =
+            false;
+
+
+        for (
+            let userNumber = 1;
+            userNumber <= 2;
+            userNumber++
+        ) {
+
+            const user =
+                userState[userNumber];
+
+
+            if (
+                !user.token ||
+                !user.username
+            ) {
+
+                continue;
+            }
+
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                userNumber;
+
+
+            option.textContent =
+                `Send as ${user.username}`;
+
+
+            select.appendChild(
+                option
+            );
+
+
+            addedOption =
+                true;
+        }
+
+
+        if (!addedOption) {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+
+            option.value =
+                "";
+
+
+            option.textContent =
+                "Login a user first";
+
+
+            select.appendChild(
+                option
+            );
+
+
+            return;
+        }
+
+
+        // Restore previous selection if possible.
+        const existing =
+            [...select.options]
+                .some(
+                    option =>
+                        option.value ===
+                        currentValue
+                );
+
+
+        if (existing) {
+
+            select.value =
+                currentValue;
+
+        }
+    }
+
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+
+    async function logoutUser(
+        userNumber
+    ) {
+
+        closeWebSocket(
+            userNumber
+        );
+
+
+        userState[userNumber] = {
+
+            token: null,
+
+            userId: null,
+
+            username: null,
+
+            websocket: null
+
+        };
+
+
+        localStorage.removeItem(
+            `token${userNumber}`
+        );
+
+        localStorage.removeItem(
+            `userId${userNumber}`
+        );
+
+        localStorage.removeItem(
+            `username${userNumber}`
+        );
+
+
+        document.getElementById(
+            `password${userNumber}`
+        ).value =
+            "";
+
+
+        document.getElementById(
+            `loginMessage${userNumber}`
+        ).textContent =
+            "";
+
+
+        document.getElementById(
+            `registrationMessage${userNumber}`
+        ).textContent =
+            "";
+
+
+        document.getElementById(
+            `displayName${userNumber}`
+        ).textContent =
+            "User";
+
+
+        document.getElementById(
+            `avatar${userNumber}`
+        ).textContent =
+            "?";
+
+
+        showLoginView(
+            userNumber
+        );
+
+
+        updateSendAsOptions();
+
+
+        // ---------------------------------------------
+        // Clear chat
+        // ---------------------------------------------
+
+        displayedMessages.clear();
+
+
+        document.getElementById(
+            "messages"
+        ).innerHTML =
+            `
+            <div class="empty-chat">
+
+                <div>
+
+                    <div class="empty-chat-icon">
+                        🔒
+                    </div>
+
+                    <h3>
+                        Session logged out
+                    </h3>
+
+                    <p>
+                        Login again to continue chatting.
+                    </p>
+
+                </div>
+
+            </div>
+            `;
+
+
+        await refreshRooms();
+    }
+
+
+    // =========================================================
+    // RESTORE LOGIN
+    // =========================================================
+
+    async function restoreLogin(
+        userNumber
+    ) {
+
+        const token =
+            localStorage.getItem(
+                `token${userNumber}`
+            );
+
+
+        if (!token) {
+            return;
+        }
+
+
+        try {
+
+            const user =
+                await apiRequest(
+                    "/users/me",
+                    {},
+                    token
+                );
+
+
+            userState[userNumber].token =
+                token;
+
+
+            userState[userNumber].userId =
+                user.id;
+
+
+            userState[userNumber].username =
+                user.username;
+
+
+            localStorage.setItem(
+                `userId${userNumber}`,
+                user.id
+            );
+
+
+            localStorage.setItem(
+                `username${userNumber}`,
+                user.username
+            );
+
+
+            showLoggedInView(
+                userNumber
+            );
+
+
+            updateUserDisplay(
+                userNumber
+            );
+
+
+        } catch (error) {
+
+            console.warn(
+                `Stored token for session ${userNumber} is invalid.`
+            );
+
+
+            localStorage.removeItem(
+                `token${userNumber}`
+            );
+
+            localStorage.removeItem(
+                `userId${userNumber}`
+            );
+
+            localStorage.removeItem(
+                `username${userNumber}`
+            );
+        }
+    }
+
+
+    // =========================================================
+    // REFRESH ROOMS
+    // =========================================================
+
+    async function refreshRooms() {
+
+        const activeUserNumber =
+            getActiveUserNumber();
+
+
+        if (!activeUserNumber) {
+
+            rooms = [];
+
+            renderRooms();
+
+            return;
+        }
+
+
+        try {
+
+            rooms =
+                await apiRequest(
+                    "/rooms",
+                    {},
+                    userState[
+                        activeUserNumber
+                    ].token
+                );
+
+
+            renderRooms();
+
+
+            // -----------------------------------------
+            // Select first room if necessary
+            // -----------------------------------------
+
+            if (
+                currentRoomId === null &&
+                rooms.length > 0
+            ) {
+
+                currentRoomId =
+                    rooms[0].id;
+
+                currentRoomName =
+                    rooms[0].name;
+
+
+                renderRooms();
+
+                updateRoomHeader();
+
+
+                await prepareCurrentRoom();
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Room loading error:",
+                error
+            );
+
+
+            document.getElementById(
+                "roomMessage"
+            ).textContent =
+                error.message ||
+                "Could not load rooms.";
+
+            document.getElementById(
+                "roomMessage"
+            ).className =
+                "feedback error";
+        }
+    }
+
+
+    // =========================================================
+    // GET ACTIVE USER
+    // =========================================================
+
+    function getActiveUserNumber() {
+
+        if (userState[1].token) {
+            return 1;
+        }
+
+
+        if (userState[2].token) {
+            return 2;
+        }
+
+
+        return null;
+    }
+
+
+    // =========================================================
+    // RENDER ROOMS
+    // =========================================================
+
+    function renderRooms() {
+
+        const container =
+            document.getElementById(
+                "roomsList"
+            );
+
+
+        const count =
+            document.getElementById(
+                "roomCount"
+            );
+
+
+        count.textContent =
+            rooms.length;
+
+
+        container.innerHTML =
+            "";
+
+
+        if (!rooms.length) {
+
+            container.innerHTML =
+                `
+                <div class="no-rooms">
+                    No rooms available.
+                </div>
+                `;
+
+            return;
+        }
+
+
+        rooms.forEach(
+            room => {
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                button.className =
+                    "room-item";
+
+
+                if (
+                    Number(room.id) ===
+                    Number(currentRoomId)
+                ) {
+
+                    button.classList.add(
+                        "active"
+                    );
+                }
+
+
+                button.onclick =
+                    () => selectRoom(
+                        room.id
+                    );
+
+
+                button.innerHTML =
+                    `
+                    <div class="room-icon">
+                        #
+                    </div>
+
+                    <div class="room-item-text">
+
+                        <span class="room-name">
+                            ${escapeHtml(room.name)}
+                        </span>
+
+                        <span class="room-id">
+                            Room ${room.id}
+                        </span>
+
+                    </div>
+                    `;
+
+
+                container.appendChild(
+                    button
+                );
+            }
+        );
+    }
+
+
+    // =========================================================
+    // SELECT ROOM
+    // =========================================================
+
+    async function selectRoom(
+        roomId
+    ) {
+
+        const room =
+            rooms.find(
+                item =>
+                    Number(item.id) ===
+                    Number(roomId)
+            );
+
+
+        if (!room) {
+            return;
+        }
+
+
+        currentRoomId =
+            room.id;
+
+
+        currentRoomName =
+            room.name;
+
+
+        renderRooms();
+
+        updateRoomHeader();
+
+
+        await prepareCurrentRoom();
+    }
+
+
+    // =========================================================
+    // CREATE ROOM
+    // =========================================================
+
+    async function createRoom() {
+
+        const input =
+            document.getElementById(
+                "newRoomName"
+            );
+
+
+        const feedback =
+            document.getElementById(
+                "roomMessage"
+            );
+
+
+        const name =
+            input.value.trim();
+
+
+        feedback.textContent =
+            "";
+
+
+        if (!name) {
+
+            feedback.textContent =
+                "Room name is required.";
+
+            feedback.className =
+                "feedback error";
+
+            return;
+        }
+
+
+        const userNumber =
+            getActiveUserNumber();
+
+
+        if (!userNumber) {
+
+            feedback.textContent =
+                "Please login first.";
+
+            feedback.className =
+                "feedback error";
+
+            return;
+        }
+
+
+        try {
+
+            const room =
+                await apiRequest(
+                    "/rooms",
+                    {
+                        method: "POST",
+
+                        body: JSON.stringify({
+                            name: name
+                        })
+                    },
+
+                    userState[
+                        userNumber
+                    ].token
+                );
+
+
+            feedback.textContent =
+                `Room "${room.name}" created.`;
+
+            feedback.className =
+                "feedback success";
+
+
+            input.value =
+                "";
+
+
+            await refreshRooms();
+
+
+            currentRoomId =
+                room.id;
+
+
+            currentRoomName =
+                room.name;
+
+
+            renderRooms();
+
+            updateRoomHeader();
+
+
+            await prepareCurrentRoom();
+
+
+        } catch (error) {
+
+            console.error(
+                "Create room error:",
+                error
+            );
+
+
+            feedback.textContent =
+                error.message ||
+                "Could not create room.";
+
+            feedback.className =
+                "feedback error";
+        }
+    }
+
+
+    // =========================================================
+    // JOIN ROOM
+    // =========================================================
+
+    async function joinRoom(
+        userNumber,
+        roomId
+    ) {
+
+        if (
+            !userState[userNumber].token
+        ) {
+
+            return;
+        }
+
+
+        try {
+
+            await apiRequest(
+                `/rooms/${roomId}/join`,
+                {
+                    method: "POST"
+                },
+                userState[
+                    userNumber
+                ].token
+            );
+
+
+            console.log(
+                `${userState[userNumber].username} joined room ${roomId}`
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                `Could not join room ${roomId}:`,
+                error
+            );
+        }
+    }
+
+
+    // =========================================================
+    // PREPARE ROOM
+    // =========================================================
+
+    async function prepareCurrentRoom() {
+
+        if (!currentRoomId) {
+            return;
+        }
+
+
+        // ---------------------------------------------
+        // Close existing WebSockets
+        // ---------------------------------------------
+
+        closeWebSocket(1);
+
+        closeWebSocket(2);
+
+
+        // ---------------------------------------------
+        // Clear displayed messages
+        // ---------------------------------------------
+
+        displayedMessages.clear();
+
+
+        document.getElementById(
+            "messages"
+        ).innerHTML =
+            "";
+
+
+        // ---------------------------------------------
+        // Join room for logged-in sessions
+        // ---------------------------------------------
+
+        if (userState[1].token) {
+
+            await joinRoom(
+                1,
+                currentRoomId
+            );
+        }
+
+
+        if (userState[2].token) {
+
+            await joinRoom(
+                2,
+                currentRoomId
+            );
+        }
+
+
+        // ---------------------------------------------
+        // Load history
+        // ---------------------------------------------
+
+        await loadMessages();
+
+
+        // ---------------------------------------------
+        // Connect WebSockets
+        // ---------------------------------------------
+
+        if (userState[1].token) {
+
+            connectWebSocket(1);
+        }
+
+
+        if (userState[2].token) {
+
+            connectWebSocket(2);
+        }
+
+
+        updateConnectionInfo();
+    }
+
+
+    // =========================================================
+    // UPDATE ROOM HEADER
+    // =========================================================
+
+    function updateRoomHeader() {
+
+        const title =
+            document.getElementById(
+                "currentRoomTitle"
+            );
+
+
+        const subtitle =
+            document.getElementById(
+                "currentRoomSubtitle"
+            );
+
+
+        if (!currentRoomId) {
+
+            title.textContent =
+                "Select a room";
+
+
+            subtitle.textContent =
+                "No room selected";
+
+
+            return;
+        }
+
+
+        title.textContent =
+            currentRoomName;
+
+
+        subtitle.textContent =
+            `Room ${currentRoomId}`;
+    }
+
+
+    // =========================================================
+    // LOAD MESSAGE HISTORY
+    // =========================================================
+
+    async function loadMessages() {
+
+        const userNumber =
+            getActiveUserNumber();
+
+
+        if (
+            !userNumber ||
+            !currentRoomId
+        ) {
+
+            return;
+        }
+
+
+        try {
+
+            const messageList =
+                await apiRequest(
+                    `/rooms/${currentRoomId}/messages`,
+                    {},
+                    userState[
+                        userNumber
+                    ].token
+                );
+
+
+            messageList.forEach(
+                message => {
+
+                    displayMessage(
+                        message
+                    );
+                }
+            );
+
+
+            scrollChatToBottom();
+
+
+        } catch (error) {
+
+            console.error(
+                "Message history error:",
+                error
+            );
+
+
+            updateMessageStatus(
+                error.message ||
+                "Could not load messages.",
+                "error"
+            );
+        }
+    }
+
+
+    // =========================================================
+    // DISPLAY MESSAGE
+    // =========================================================
+
+    function displayMessage(
+        message
+    ) {
+
+        const messageId =
+            String(message.id);
+
+
+        // ---------------------------------------------
+        // Prevent duplicates
+        // ---------------------------------------------
+
+        if (
+            displayedMessages.has(
+                messageId
+            )
+        ) {
+
+            return;
+        }
+
+
+        displayedMessages.add(
+            messageId
+        );
+
+
+        const messagesElement =
+            document.getElementById(
+                "messages"
+            );
+
+
+        // Remove empty message
+        // if it exists.
+        const empty =
+            messagesElement.querySelector(
+                ".empty-chat"
+            );
+
+
+        if (empty) {
+            empty.remove();
+        }
+
+
+        // ---------------------------------------------
+        // Find actual sender
+        // ---------------------------------------------
+
+        let senderUsername =
+            `User ${message.sender_id}`;
+
+
+        let senderUserNumber =
+            null;
+
+
+        if (
+            Number(message.sender_id) ===
+            Number(userState[1].userId)
+        ) {
+
+            senderUsername =
+                userState[1].username;
+
+            senderUserNumber =
+                1;
+
+        } else if (
+            Number(message.sender_id) ===
+            Number(userState[2].userId)
+        ) {
+
+            senderUsername =
+                userState[2].username;
+
+            senderUserNumber =
+                2;
+        }
+
+
+        // ---------------------------------------------
+        // Message wrapper
+        // ---------------------------------------------
+
+        const wrapper =
+            document.createElement(
+                "div"
+            );
+
+
+        wrapper.className =
+            "message";
+
+
+        // ---------------------------------------------
+        // Check if message belongs to
+        // currently selected session.
+        // ---------------------------------------------
+
+        const selectedSender =
+            Number(
+                document.getElementById(
+                    "sendAs"
+                ).value
+            );
+
+
+        if (
+            senderUserNumber ===
+            selectedSender
+        ) {
+
+            wrapper.classList.add(
+                "mine"
+            );
+        }
+
+
+        // ---------------------------------------------
+        // Avatar
+        // ---------------------------------------------
+
+        const avatar =
+            document.createElement(
+                "div"
+            );
+
+
+        avatar.className =
+            "message-avatar";
+
+
+        avatar.textContent =
+            getInitials(
+                senderUsername
+            );
+
+
+        // ---------------------------------------------
+        // Body
+        // ---------------------------------------------
+
+        const body =
+            document.createElement(
+                "div"
+            );
+
+
+        body.className =
+            "message-body";
+
+
+        // ---------------------------------------------
+        // Metadata
+        // ---------------------------------------------
+
+        const meta =
+            document.createElement(
+                "div"
+            );
+
+
+        meta.className =
+            "message-meta";
+
+
+        const sender =
+            document.createElement(
+                "span"
+            );
+
+
+        sender.className =
+            "message-sender";
+
+
+        sender.textContent =
+            senderUsername ||
+            `User ${message.sender_id}`;
+
+
+        const time =
+            document.createElement(
+                "span"
+            );
+
+
+        time.className =
+            "message-time";
+
+
+        time.textContent =
+            formatMessageTime(
+                message.created_at
+            );
+
+
+        meta.appendChild(
+            sender
+        );
+
+
+        meta.appendChild(
+            time
+        );
+
+
+        // ---------------------------------------------
+        // Bubble
+        // ---------------------------------------------
+
+        const bubble =
+            document.createElement(
+                "div"
+            );
+
+
+        bubble.className =
+            "message-bubble";
+
+
+        bubble.textContent =
+            message.content;
+
+
+        body.appendChild(
+            meta
+        );
+
+
+        body.appendChild(
+            bubble
+        );
+
+
+        wrapper.appendChild(
+            avatar
+        );
+
+
+        wrapper.appendChild(
+            body
+        );
+
+
+        messagesElement.appendChild(
+            wrapper
+        );
+
+
+        scrollChatToBottom();
+    }
+
+
+    // =========================================================
+    // FORMAT MESSAGE TIME
+    // =========================================================
+
+    function formatMessageTime(
+        value
+    ) {
+
+        if (!value) {
+            return "";
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return value;
+        }
+
+
+        return date.toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+    }
+
+
+    // =========================================================
+    // CONNECT WEBSOCKET
+    // =========================================================
+
+    function connectWebSocket(
+        userNumber
+    ) {
+
+        if (
+            !currentRoomId ||
+            !userState[userNumber].token
+        ) {
+
+            return;
+        }
+
+
+        closeWebSocket(
+            userNumber
+        );
+
+
+        const websocketUrl =
+            `${WS_BASE_URL}/ws/rooms/${currentRoomId}?token=${encodeURIComponent(
+                userState[userNumber].token
+            )}`;
+
+
+        console.log(
+            `Connecting ${userState[userNumber].username} WebSocket`
+        );
+
+
+        const websocket =
+            new WebSocket(
+                websocketUrl
+            );
+
+
+        userState[userNumber].websocket =
+            websocket;
+
+
+        websocket.onopen =
+            () => {
+
+                console.log(
+                    `${userState[userNumber].username} WebSocket connected.`
+                );
+
+
+                updateOnlineStatus(
+                    userNumber,
+                    true
+                );
+
+
+                updateConnectionInfo();
+            };
+
+
+        websocket.onmessage =
+            event => {
+
+                console.log(
+                    "WebSocket message:",
+                    event.data
+                );
+
+
+                try {
+
+                    const data =
+                        JSON.parse(
+                            event.data
+                        );
+
+
+                    if (
+                        data.type ===
+                        "typing"
+                    ) {
+
+                        return;
+                    }
+
+
+                    if (
+                        data.type ===
+                        "error"
+                    ) {
+
+                        updateMessageStatus(
+                            data.message ||
+                            "WebSocket error.",
+                            "error"
+                        );
+
+
+                        return;
+                    }
+
+
+                    displayMessage(
+                        data
+                    );
+
+
+                } catch (error) {
+
+                    console.error(
+                        "WebSocket parse error:",
+                        error
+                    );
+                }
+            };
+
+
+        websocket.onerror =
+            error => {
+
+                console.error(
+                    `WebSocket error for session ${userNumber}:`,
+                    error
+                );
+
+
+                updateMessageStatus(
+                    `${userState[userNumber].username} connection error.`,
+                    "error"
+                );
+
+
+                updateConnectionInfo();
+            };
+
+
+        websocket.onclose =
+            event => {
+
+                console.log(
+                    `WebSocket closed for session ${userNumber}`,
+                    event.code,
+                    event.reason
+                );
+
+
+                if (
+                    userState[userNumber].websocket ===
+                    websocket
+                ) {
+
+                    userState[userNumber].websocket =
+                        null;
+                }
+
+
+                updateOnlineStatus(
+                    userNumber,
+                    false
+                );
+
+
+                updateConnectionInfo();
+            };
+    }
+
+
+    // =========================================================
+    // CLOSE WEBSOCKET
+    // =========================================================
+
+    function closeWebSocket(
+        userNumber
+    ) {
+
+        const websocket =
+            userState[userNumber].websocket;
+
+
+        if (!websocket) {
+            return;
+        }
+
+
+        try {
+
+            websocket.close();
+
+        } catch (error) {
+
+            console.warn(
+                "WebSocket close error:",
+                error
+            );
+        }
+
+
+        userState[userNumber].websocket =
+            null;
+
+
+        updateOnlineStatus(
+            userNumber,
+            false
+        );
+    }
+
+
+    // =========================================================
+    // SEND MESSAGE
+    // =========================================================
+
+    function sendMessage() {
+
+        const sendAs =
+            document.getElementById(
+                "sendAs"
+            );
+
+
+        const senderNumber =
+            Number(
+                sendAs.value
+            );
+
+
+        const input =
+            document.getElementById(
+                "messageInput"
+            );
+
+
+        const content =
+            input.value.trim();
+
+
+        if (!senderNumber) {
+
+            updateMessageStatus(
+                "Please login a user first.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            !userState[
+                senderNumber
+            ].token
+        ) {
+
+            updateMessageStatus(
+                `Please login ${userState[senderNumber].username || `session ${senderNumber}`} first.`,
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!currentRoomId) {
+
+            updateMessageStatus(
+                "Please select a room.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const websocket =
+            userState[
+                senderNumber
+            ].websocket;
+
+
+        if (
+            !websocket ||
+            websocket.readyState !==
+            WebSocket.OPEN
+        ) {
+
+            updateMessageStatus(
+                `${userState[senderNumber].username} is not connected to the room.`,
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!content) {
+
+            updateMessageStatus(
+                "Message cannot be empty.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            content.length >
+            2000
+        ) {
+
+            updateMessageStatus(
+                "Message cannot exceed 2000 characters.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        // ---------------------------------------------
+        // Send through WebSocket
+        // ---------------------------------------------
+
+        websocket.send(
+            JSON.stringify({
+
+                type: "message",
+
+                content: content
+
+            })
+        );
+
+
+        input.value =
+            "";
+
+
+        updateMessageStatus(
+            `Sent as ${userState[senderNumber].username}.`,
+            "success"
+        );
+    }
+
+
+    // =========================================================
+    // ENTER KEY
+    // =========================================================
+
+    function handleMessageKey(
+        event
+    ) {
+
+        if (
+            event.key ===
+            "Enter"
+        ) {
+
+            event.preventDefault();
+
+            sendMessage();
+        }
+    }
+
+
+    // =========================================================
+    // MESSAGE STATUS
+    // =========================================================
+
+    function updateMessageStatus(
+        message,
+        type = "info"
+    ) {
+
+        const element =
+            document.getElementById(
+                "messageStatus"
+            );
+
+
+        element.textContent =
+            message;
+
+
+        element.className =
+            `feedback ${type}`;
+
+
+        setTimeout(
+            () => {
+
+                if (
+                    element.textContent ===
+                    message
+                ) {
+
+                    element.textContent =
+                        "";
+                }
+
+            },
+            3000
+        );
+    }
+
+
+    // =========================================================
+    // CONNECTION INFO
+    // =========================================================
+
+    function updateConnectionInfo() {
+
+        const element =
+            document.getElementById(
+                "connectionInfo"
+            );
+
+
+        if (!currentRoomId) {
+
+            element.textContent =
+                "Not connected";
+
+            return;
+        }
+
+
+        const connectedUsers =
+            [];
+
+
+        for (
+            let userNumber = 1;
+            userNumber <= 2;
+            userNumber++
+        ) {
+
+            const websocket =
+                userState[userNumber].websocket;
+
+
+            if (
+                websocket &&
+                websocket.readyState ===
+                WebSocket.OPEN
+            ) {
+
+                connectedUsers.push(
+                    userState[userNumber].username
+                );
+            }
+        }
+
+
+        if (!connectedUsers.length) {
+
+            element.textContent =
+                "No active connections";
+
+            return;
+        }
+
+
+        element.textContent =
+            `${connectedUsers.length} connected`;
+    }
+
+
+    // =========================================================
+    // SCROLL CHAT
+    // =========================================================
+
+    function scrollChatToBottom() {
+
+        const messages =
+            document.getElementById(
+                "messages"
+            );
+
+
+        messages.scrollTop =
+            messages.scrollHeight;
+    }
+
+
+    // =========================================================
+    // ESCAPE HTML
+    // =========================================================
+
+    function escapeHtml(
+        value
+    ) {
+
+        const div =
+            document.createElement(
+                "div"
+            );
+
+
+        div.textContent =
+            value;
+
+
+        return div.innerHTML;
+    }
+
+
+    // =========================================================
+    // INITIALIZATION
+    // =========================================================
+
+    async function initialize() {
+
+        console.log(
+            "Initializing Real-Time Messaging..."
+        );
+
+
+        await checkServerConnection();
+
+
+        await restoreLogin(1);
+
+
+        await restoreLogin(2);
+
+
+        updateUserDisplay(1);
+
+        updateUserDisplay(2);
+
+
+        updateSendAsOptions();
+
+
+        await refreshRooms();
+
+
+        console.log(
+            "Application initialized."
+        );
+    }
+
+
+    // =========================================================
+    // START APPLICATION
+    // =========================================================
+
+    initialize();
+
+</script>
+
+</body>
+
+</html>
