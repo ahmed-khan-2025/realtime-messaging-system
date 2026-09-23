@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Real-Time Messaging System
 
 A production-style real-time messaging application built with **Python and FastAPI**.
@@ -230,3 +231,6 @@ docker compose down
 ## License
 
 This project is intended for learning, portfolio development, and demonstration of backend engineering concepts.
+=======
+# realtime-messaging-system
+>>>>>>> 3471a1c3a475ad54c3ec3b5d5c8840b8f194849b
